@@ -90,6 +90,7 @@ public class Snake : MonoBehaviour, IGame
 
     private void ResetValues()
     {
+        previousDirection = new Vector2Int(1, 0);
         snakeCycle = null;
         gameManager.Pause -= OnPause;
         gameManager.Resume -= OnResume;

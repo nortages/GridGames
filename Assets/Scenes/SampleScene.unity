@@ -3363,6 +3363,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 196837275}
   m_CullTransparentMesh: 0
+--- !u!1 &213774733 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5251935188145965051, guid: 4b7379992ca9fcf49b8ee0f4acd05fd6,
+    type: 3}
+  m_PrefabInstance: {fileID: 5742087607140101441}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &213774734
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 213774733}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1001 &219140128
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13096,6 +13152,7 @@ MonoBehaviour:
   timerText: {fileID: 603778060}
   scoreText: {fileID: 623853608}
   chooseGameDropdown: {fileID: 1973848946}
+  timeFromStart: 0
   gameState: 4
   previousGameState: 4
 --- !u!4 &1455333343
@@ -13131,8 +13188,9 @@ MonoBehaviour:
   bombsRemainText: {fileID: 0}
   gridLayoutGroup: {fileID: 1958039770}
   gridSize: {x: 16, y: 16}
-  minefieldForDebug: []
-  openedCellsNum: 0
+  bombSprite: {fileID: 21300000, guid: e5d2094f5f5242f4abfd5ad4365d798a, type: 3}
+  flagSprite: {fileID: 21300000, guid: 402f6fb9b5740dd4ea7d2aa0449ce3d7, type: 3}
+  gameTitle: Minesweeper
 --- !u!114 &1455333345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13149,7 +13207,7 @@ MonoBehaviour:
   cellPrefab: {fileID: 4998033211558329929, guid: b3fea3ecf353c4048927af5246ec9d2b,
     type: 3}
   gridObj: {fileID: 1958039767}
-  snailSpeed: 5
+  snakeSpeed: 5
   acceleration: 0.02
   pointColor: {r: 1, g: 0, b: 0, a: 1}
   cellColor: {r: 1, g: 1, b: 1, a: 1}
@@ -13162,6 +13220,7 @@ MonoBehaviour:
   - {x: 1, y: 8}
   - {x: 2, y: 8}
   - {x: 3, y: 8}
+  gameTitle: Snake
 --- !u!1001 &1479559363
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24916,6 +24975,11 @@ PrefabInstance:
       propertyPath: m_textInfo.pageCount
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5251935188145965051, guid: 4b7379992ca9fcf49b8ee0f4acd05fd6,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5742087605909688708, guid: 4b7379992ca9fcf49b8ee0f4acd05fd6,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -25025,6 +25089,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GridCell(Clone)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6938934342995553367, guid: 4b7379992ca9fcf49b8ee0f4acd05fd6,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6938934342995553367, guid: 4b7379992ca9fcf49b8ee0f4acd05fd6,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6938934342995553367, guid: 4b7379992ca9fcf49b8ee0f4acd05fd6,
+        type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b7379992ca9fcf49b8ee0f4acd05fd6, type: 3}

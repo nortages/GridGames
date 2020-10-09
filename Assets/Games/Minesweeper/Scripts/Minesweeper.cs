@@ -6,12 +6,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityRandom = UnityEngine.Random;
 
-[Serializable]
-public class MyArray
-{
-    public bool[] array;
-}
-
 public class Minesweeper : MonoBehaviour, IGame
 {
     [SerializeField] private GameObject grid;
@@ -21,10 +15,13 @@ public class Minesweeper : MonoBehaviour, IGame
     [SerializeField] private GridLayoutGroup gridLayoutGroup;
     [SerializeField] private Vector2Int gridSize = new Vector2Int(10, 10);
 
+    public Sprite bombSprite;
+    public Sprite flagSprite;
     private int cellsNum;
     private int bombsNum;
     private bool[,] minefield;
     private MineCell[,] cells;
+    private int openedCellsNum;
     private GameManager gameManager;
     private const string scoreFormat = "{0:00}:{1:00}";
     private const string bombsRemainFormat = "{0} bombs remain";
@@ -56,22 +53,20 @@ public class Minesweeper : MonoBehaviour, IGame
         return string.Format(scoreFormat, minutes, rem_seconds);
     }
 
-    public MyArray[] minefieldForDebug;
-    [HideInInspector] public int openedCellsNum;
-
     [ContextMenu("Show field")]
     public void ShowField()
     {
-        minefieldForDebug = new MyArray[minefield.GetUpperBound(0) + 1];
-        for (int i = 0; i < minefield.GetUpperBound(0) + 1; i++)
+        if (gameManager.gameState != GameState.Running) return;
+
+        for (int i = 0; i < gridSize.x; i++)
         {
-            minefieldForDebug[i] = new MyArray
+            for (int j = 0; j < gridSize.y; j++)
             {
-                array = new bool[minefield.GetUpperBound(1) + 1]
-            };
-            for (int j = 0; j < minefield.GetUpperBound(1) + 1; j++)
-            {
-                minefieldForDebug[i].array[j] = minefield[i, j];
+                if (minefield[i, j])
+                {
+                    cells[i, j].image.gameObject.SetActive(true);
+                    cells[i, j].SetSprite(bombSprite, 0.5f);
+                }
             }
         }
     }
@@ -172,6 +167,7 @@ public class Minesweeper : MonoBehaviour, IGame
 
     internal bool IsThereBomb(MineCell cell)
     {
+        openedCellsNum++;
         var pos = cells.CoordinatesOf(cell);
 
         if (gameManager.gameState == GameState.None)

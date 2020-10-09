@@ -5,10 +5,8 @@ using UnityEngine.UI;
 
 public class MineCell : MonoBehaviour, IPointerClickHandler
 {
-    [SerializeField] private Image image;
+    public Image image;
     [SerializeField] private Button button;
-    [SerializeField] private Sprite bombSprite;
-    [SerializeField] private Sprite flagSprite;
     [SerializeField] private TextMeshProUGUI text;
 
     private GameManager gameManager;
@@ -37,21 +35,27 @@ public class MineCell : MonoBehaviour, IPointerClickHandler
         {
             ToggleFlag();
         }        
-    }   
+    }
+
+    public void SetSprite(Sprite sprite, float alpha = 1)
+    {
+        image.gameObject.SetActive(sprite != null ? true : false);
+        image.sprite = sprite;
+        var tempColor = image.color;
+        tempColor.a = alpha;
+        image.color = tempColor;
+    }
 
     private void CheckForBomb()
     {
         if (flag || isOpen) return;
 
-        minesweeper.openedCellsNum++;
         isOpen = true;
         button.interactable = false;
 
         if (minesweeper.IsThereBomb(this))
         {
-            image.gameObject.SetActive(true);
-            image.sprite = bombSprite;
-
+            SetSprite(minesweeper.bombSprite);
             gameManager.GameOver(GameState.Lose);
         }
         else
@@ -72,7 +76,7 @@ public class MineCell : MonoBehaviour, IPointerClickHandler
         flag = !flag;
         var mult = flag ? -1 : 1;
         minesweeper.ChangeFlagNum(mult);
-        image.gameObject.SetActive(flag);
+        SetSprite(flag ? minesweeper.flagSprite : null);
     }
 }
     

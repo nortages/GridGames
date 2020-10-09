@@ -23,6 +23,8 @@ public static class ExtensionMethods
         return new Vector2Int(-1, -1);
     }
 
+    public static T GetElemAt<T>(this T[,] matrix, Vector2Int cellPos) => matrix[cellPos.x, cellPos.y];
+
     public static void DestroyChildren(this GameObject go)
     {
         foreach (Transform item in go.transform)

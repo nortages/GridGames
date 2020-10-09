@@ -25,6 +25,8 @@ public class WindowsManager : MonoBehaviour
 
     private bool isScoreWinOpen = false;
 
+    public Func<string> formatFunc;
+
     private void Awake()
     {
         mainWindow.SetActive(false);
@@ -46,7 +48,7 @@ public class WindowsManager : MonoBehaviour
         mainWindow.SetActive(false);
     }
 
-    internal void ShowMainWindow(GameState state, float seconsFromStart = default)
+    internal void ShowMainWindow(GameState state, string formattedScore = default)
     {
         mainWindow.SetActive(true);
         menuBackground.SetActive(true);
@@ -59,35 +61,39 @@ public class WindowsManager : MonoBehaviour
             gameStateText.color = winColor;
             pauseScore.gameObject.SetActive(true);
 
-            (int minutes, int rem_seconds) = ExtensionMethods.GetMinSec(seconsFromStart);
-            pauseScore.text = $"Your score is {minutes:00}:{rem_seconds:00}";
+            pauseScore.text = $"Your score is {formattedScore}";
         }
         else if (state == GameState.Lose)
         {
             mainWinTitle.text = gameOverStatement;
-            gameStateText.color = loseColor;
             gameStateText.text = gameLoseStatement;
+            gameStateText.color = loseColor;
         }
         else if (state == GameState.Paused)
         {
             mainWinTitle.text = gamePausedStatement;
             gameStateText.gameObject.SetActive(false);
         }
+        else if (state == GameState.Over)
+        {
+            mainWinTitle.text = gameOverStatement;
+            pauseScore.text = $"Your score is {formattedScore}";
+            pauseScore.gameObject.SetActive(true);
+            gameStateText.gameObject.SetActive(false);
+        }
     }
 
-    internal void ShowScoresWindow(Dictionary<DateTime, float> dictScores, string scoreFormat)
+    internal void ShowScoresWindow(IEnumerable<string> scores)
     {
         isScoreWinOpen = true;
         menuBackground.SetActive(true);
         scoresWindow.SetActive(true);
         scoresPanel.DestroyChildren();
-        int i = 0;
-        foreach (var score in dictScores.OrderBy(key => key.Value))
+
+        foreach (var score in scores)
         {
-            i++;
             var scoreObj = Instantiate(scorePrefab, scoresPanel.transform);
-            (int minutes, int rem_seconds) = ExtensionMethods.GetMinSec(score.Value);
-            scoreObj.text = string.Format(scoreFormat, i, minutes, rem_seconds, score.Key);
+            scoreObj.text = score;
         }
     }
 }

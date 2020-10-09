@@ -12,29 +12,52 @@ public class MyArray
     public bool[] array;
 }
 
-public class Minesweeper : MonoBehaviour
+public class Minesweeper : MonoBehaviour, IGame
 {
     [SerializeField] private GameObject grid;
     [SerializeField] private MineCell gridCell;
     [SerializeField] private double gameHardity = 0.8;
-    [SerializeField] private TextMeshProUGUI bombsRemain;
+    [SerializeField] private TextMeshProUGUI bombsRemainText;
     [SerializeField] private GridLayoutGroup gridLayoutGroup;
     [SerializeField] private Vector2Int gridSize = new Vector2Int(10, 10);
 
     private int cellsNum;
-    private int bombsNum = 0;
+    private int bombsNum;
     private bool[,] minefield;
     private MineCell[,] cells;
-    private int bombsFlagged = 0;
     private GameManager gameManager;
+    private const string scoreFormat = "{0:00}:{1:00}";
     private const string bombsRemainFormat = "{0} bombs remain";
     private readonly PointerEventData pointerEventData = new PointerEventData(EventSystem.current)
     {
         button = PointerEventData.InputButton.Left
     };
+    private int bombsRemain;
+    public int BombsRemain
+    {
+        get => bombsRemain;
+        set
+        {
+            bombsRemain = value;
+            bombsRemainText.text = string.Format(bombsRemainFormat, BombsRemain);
+        }
+    }
+
+    [SerializeField] private string gameTitle = "Minesweeper";
+    public string GameTitle => gameTitle;
+
+    public float RawScore => gameManager.timeFromStart;
+
+    public bool SortScoresByDescending => false;
+
+    public string FormatScore(float score)
+    {
+        (int minutes, int rem_seconds) = ExtensionMethods.GetMinSec(score);
+        return string.Format(scoreFormat, minutes, rem_seconds);
+    }
 
     public MyArray[] minefieldForDebug;
-    [HideInInspector] public int openedCellsNum = 0;
+    [HideInInspector] public int openedCellsNum;
 
     [ContextMenu("Show field")]
     public void ShowField()
@@ -53,10 +76,17 @@ public class Minesweeper : MonoBehaviour
         }
     }
 
+    [ContextMenu("Win game")]
+    public void WinGame()
+    {
+        gameManager.GameOver(GameState.Win);
+    }
+
     private void Awake()
     {
         gameManager = FindObjectOfType<GameManager>();
-        bombsRemain.gameObject.SetActive(false);
+        bombsRemainText = gameManager.ScoreText;
+        bombsRemainText.gameObject.SetActive(false);
     }
 
     void Start()
@@ -84,6 +114,12 @@ public class Minesweeper : MonoBehaviour
         }
     }
 
+    public void CloseGame()
+    {
+        grid.DestroyChildren();
+        bombsRemainText.gameObject.SetActive(false);
+    }
+
     internal void CheckForWin()
     {
         if (WinCondition())
@@ -97,26 +133,26 @@ public class Minesweeper : MonoBehaviour
         int num = 0;
         var pos = cells.CoordinatesOf(mineCell);
 
-        foreach (var item in pos.GetNextCellPos(gridSize))
+        foreach (var position in pos.GetNextCellPos(gridSize))
         {
-            if (minefield[item.x, item.y]) num++;
+            if (minefield.GetElemAt(position)) num++;
         }
         return num;
     }
 
     private void ResetValues()
     {
-        gameManager.ResetValues();
-        bombsRemain.gameObject.SetActive(false);
+        bombsRemainText.gameObject.SetActive(false);
         openedCellsNum = 0;
-        bombsFlagged = 0;
+        BombsRemain = 0;
+        bombsNum = 0;
     }
 
     internal void TryQuickOpen(MineCell mineCell)
     {
         var pos = cells.CoordinatesOf(mineCell);
         var cellsAround = pos.GetNextCellPos(gridSize);
-        var isAnyFlag = cellsAround.Any(cellPos => GetCellAt(cellPos).flag);
+        var isAnyFlag = cellsAround.Any(cellPos => cells.GetElemAt(cellPos).flag);
         if (isAnyFlag) TriggerCellsAround(mineCell);
     }
 
@@ -125,16 +161,13 @@ public class Minesweeper : MonoBehaviour
         var pos = cells.CoordinatesOf(mineCell);
         foreach (var nextCellPos in pos.GetNextCellPos(gridSize))
         {
-            ExecuteEvents.Execute(GetCellAt(nextCellPos).gameObject, pointerEventData, ExecuteEvents.pointerClickHandler);
+            ExecuteEvents.Execute(cells.GetElemAt(nextCellPos).gameObject, pointerEventData, ExecuteEvents.pointerClickHandler);
         }
     }
 
-    internal MineCell GetCellAt(Vector2Int cellPos) => cells[cellPos.x, cellPos.y];
-
     internal void ChangeFlagNum(int value)
     {
-        bombsFlagged += value;
-        bombsRemain.text = string.Format(bombsRemainFormat, bombsFlagged);
+        BombsRemain += value;
     }
 
     internal bool IsThereBomb(MineCell cell)
@@ -144,10 +177,9 @@ public class Minesweeper : MonoBehaviour
         if (gameManager.gameState == GameState.None)
         {
             minefield = GenerateMinefield(pos);
-            bombsRemain.gameObject.SetActive(true);
-            bombsFlagged = bombsNum;
+            bombsRemainText.gameObject.SetActive(true);
             ChangeFlagNum(bombsNum);
-            gameManager.gameState = GameState.Running;
+            gameManager.StartTimer();
         }
 
         var value = minefield[pos.x, pos.y];

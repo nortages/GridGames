@@ -49,7 +49,7 @@ public class MineCell : MonoBehaviour, IPointerClickHandler
 
         if (minesweeper.IsThereBomb(this))
         {
-            image.enabled = true;
+            image.gameObject.SetActive(true);
             image.sprite = bombSprite;
 
             gameManager.GameOver(GameState.Lose);
@@ -72,7 +72,7 @@ public class MineCell : MonoBehaviour, IPointerClickHandler
         flag = !flag;
         var mult = flag ? -1 : 1;
         minesweeper.ChangeFlagNum(mult);
-        image.enabled = flag;
+        image.gameObject.SetActive(flag);
     }
 }
     
